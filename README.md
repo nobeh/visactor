@@ -14,7 +14,7 @@ $ git clone http://github.com/nobeh/visactor.git
 $ cd visactor
 visactor$ ./run-demo.sh 
 ```
-then open your browser to [http://localhost:8080/index.html]
+then open your browser to `http://localhost:8080/index.html`
 
 **Note** your browser must support [Server-sent Events][2]
 
