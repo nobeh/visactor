@@ -22,7 +22,7 @@ then open your browser to `http://localhost:8080/index.html`
 
 visactor provides the following REST end points:
 
-1. Receive events
+### Push events
 
 Events can be put into visactor at `/events/sink`:
 - The HTTP method is `PUT`.
@@ -35,14 +35,15 @@ An example cURL command would like:
 curl -X PUT -d '{"source": "a", "target": "b"}' http://localhost:8080/events/sink
 ```
 
-2. Publish events
+### Receive events
 
 visactor provides access to the "stream" of events using `/events/source`:
 - The HTTP `Content-Type` is `text/event-stream` as specified is [Server-sent Events][2]
 - Each event is a JSON object that has the same properties as above.
 - The stream can be utilizid using JavaScript [EventSource][3]
 
-visactor provides an out-of-the-box `index.html` that uses the same JavaScript technique with [D3][1]
+visactor provides an out-of-the-box `index.html` that uses the same JavaScript technique with [D3][1].
+However, you may develop another layer to visualize the events that are published from visactor.
 
 ## Contribution
 
