@@ -38,6 +38,7 @@ curl -X PUT -d '{"source": "a", "target": "b"}' http://localhost:8080/events/sin
 ### Receive events
 
 visactor provides access to the "stream" of events using `/events/source`:
+- The HTTP method is `GET`.
 - The HTTP `Content-Type` is `text/event-stream` as specified is [Server-sent Events][2]
 - Each event is a JSON object that has the same properties as above.
 - The stream can be utilizid using JavaScript [EventSource][3]
