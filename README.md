@@ -32,7 +32,9 @@ Events can be put into visactor at `/events/sink`:
 
 An example cURL command would like:
 ```bash
-curl -H "Content-Type: application/json" -X PUT -d '{"source": "a", "target": "b"}' http://localhost:8080/events/sink
+curl -H "Content-Type: application/json" -X PUT \
+     -d '{"source": "a", "target": "b"}' \
+     http://localhost:8080/events/sink
 ```
 
 ### Receive events
