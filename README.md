@@ -18,6 +18,31 @@ then open your browser to `http://localhost:8080/index.html`
 
 **Note** your browser must support [Server-sent Events][2]
 
+## Use Visactor
+
+### REST API
+
+visactor provides the following REST end points:
+
+1. Receive events
+
+Events can be put into visactor at `/events/sink`:
+- The HTTP method is `PUT`.
+- The content type should be `application/json`.
+- Each event is defined as (id, timestamp, source, target). If ID is not provided, an instance of `java.util.UUID` is used. Time stamp should be the standard UNIX epoch seconds and if not provided, it defaults to now.
+- The response is 201 if OK and contains the ID of the event.
+
+An example cURL command would like:
+```bash
+curl -X PUT -d
+```
+
+2. Publish events
+
+The end point 
+
+#### Publish events
+
 [1]: http://d3js.org 
 [2]: http://en.wikipedia.org/wiki/Server-sent_events
 
