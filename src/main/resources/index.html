@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="actor model visualization">
+  <meta name="author" content="visactor">
+
+  <title>visactor</title>  
+  
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+</head>
+<body style="padding-top: 50px;">
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/index.html">visactor</a>
+        </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+    	<div class="col-md-12">&nbsp;</div>
+    	<div class="row">
+    		<div class="col-md-3">
+				<div class="panel panel-default">
+				  <div class="panel-heading">Last Event</div>
+				  <div class="panel-body">
+	    			<span id="chord-last-event-id"></span>
+				  </div>
+				</div>
+    		</div>
+    		<div class="col-md-9" style="padding: 50px;">
+	    		<div id="chord"></div>
+    		</div>
+    	</div>
+    </div>
+    
+  <!-- Scripts -->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js"></script>
+  <script type="text/javascript">
+
+    // The following variables are changed through time.
+    // So, they are not reset or locally defined.
+    var matrix = [];
+    var indexByName = d3.map(),
+        nameByIndex = d3.map();
+    var lastEventId = -1;
+
+    var source = new EventSource('/events/source');
+    
+    var format = d3.time.format("%d-%m-%Y %H:%M:%S.%L");
+    var width = 480;
+    var height = 480;
+    var outerRadius = Math.min(width, height) / 2 - 10;
+    var innerRadius = outerRadius - 24;
+	var arc = d3.svg.arc()
+		.innerRadius(innerRadius)
+		.outerRadius(outerRadius)
+	;
+	
+    var fill = d3.scale.category20c();
+    var chord;
+    var svg;
+    var chordLines;
+    
+    function formatDate(epochMillis) {
+    	return format(new Date(epochMillis));
+    }
+
+    function mouseover(opacity) {
+        return function(g, i) {
+            chordLines
+                .filter(function(d) {
+                    return d.source.index != i && d.target.index != i;
+                })
+                .transition()
+                .style("opacity", opacity);
+        };
+    }
+
+    function clean() {
+      d3.select("#chord").selectAll('svg').remove();
+    }
+    
+    function render() {
+
+      // initialize a chord layout in d3
+      chord = d3.layout.chord()
+        .padding(.04)
+        .sortSubgroups(d3.descending)
+        .sortChords(d3.ascending)
+        .matrix(matrix)
+      ;
+      
+      var path = d3.svg.chord()
+      	.radius(innerRadius)
+      ;
+
+      svg = d3.select("#chord")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("id", "circle")
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+      ;
+      
+      svg.append("circle")
+      	.attr("r", outerRadius)
+      	.style("fill", "none")
+      ;
+
+      // Define the arc for each node in the network
+      var group = svg.selectAll(".group")
+        .data(chord.groups)
+        .enter()
+        .append("g")
+        .attr("class", "group")
+        .on("mouseover", mouseover(0.1))
+        .on("mouseout", mouseover(1))
+      ;
+      
+      var groupPath = group.append("path")
+      	.attr("id", function(d, i) { return "group" + i; })
+      	.attr("d", arc)
+      	.style("fill", function(d, i) { return fill(i); })
+      	.style("stroke", function(d, i) {return fill(i); })
+      ;
+      
+      var groupText = group.append("text")
+      	.attr("x", 6)
+      	.attr("dy", 15)
+      ;
+      groupText.append("textPath")
+      	.attr("xlink:href", function(d, i) { return "#group" + i; })
+      	.text(function(d, i) { return nameByIndex.get(i); })
+      ;
+
+      // Connect source and target in matrix with a chord
+      chordLines = svg.selectAll(".chord")
+      	.data(chord.chords)
+      	.enter()
+      	.append("path")
+      	.attr("class", "chord")
+      	.style("fill", function(d, i) { return fill(i); })
+      	.attr("d", path)
+      ;
+      
+    }
+
+    source.addEventListener('event', function(e) {
+      var jsonData = JSON.parse(e.data);
+      var n = 0;
+
+      // Compute a unique index.
+      jsonData.forEach(function(d) {
+        var x;
+        if (!indexByName.has(x = d.source)) {
+          nameByIndex.set(n, x);
+          indexByName.set(x, n++);
+        }
+        if (!indexByName.has(x = d.target)) {
+          nameByIndex.set(n, x);
+          indexByName.set(x, n++);
+        }
+      });
+
+      // Construct a square matrix.
+      jsonData.forEach(function(d) {
+        var source = indexByName.get(d.source),
+            row = matrix[source];
+        if (!row) {
+         row = matrix[source] = [];
+         for (var i = -1; ++i < n;) row[i] = 0;
+        }
+        row[indexByName.get(d.target)]++;
+
+        source = indexByName.get(d.target),
+        row = matrix[source];
+        if (!row) {
+          row = matrix[source] = [];
+          for (var i = -1; ++i < n;) row[i] = 0;
+        }
+        row[indexByName.get(d.source)]++;
+        if (d.timestamp > lastEventId) {
+        	lastEventId = d.timestamp;
+        }
+      });
+
+      clean();
+      render();
+	  $("#chord-last-event-id").text(formatDate(lastEventId));
+    }, false);
+  </script>
+</body>
+</html>

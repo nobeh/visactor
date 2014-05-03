@@ -1,0 +1,11 @@
+#!/bin/bash
+
+version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
+echo "Java version $version in PATH"
+
+if [[ "$version" < "1.8" ]]; then
+    echo "visactor requires Java 1.8" && exit 1;
+fi
+
+java -jar $@ visactor-*.jar
+    
