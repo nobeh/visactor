@@ -58,6 +58,7 @@
 
     var source = new EventSource('/events/source');
     
+    var formatPercent = d3.format(".1%");
     var format = d3.time.format("%d-%m-%Y %H:%M:%S.%L");
     var width = 480;
     var height = 480;
@@ -155,7 +156,16 @@
       	.style("fill", function(d, i) { return fill(i); })
       	.attr("d", path)
       ;
-      
+
+   	  // Add an elaborate mouseover title for each chord.
+      chordLines.append("title").text(function(d) {
+      	return nameByIndex.get(d.source.index)
+      		+ " → " + nameByIndex.get(d.target.index)
+      		+ ": " + formatPercent(d.source.value)
+      		+ "\n" + nameByIndex.get(d.target.index)
+      		+ " → " + nameByIndex.get(d.source.index)
+      		+ ": " + formatPercent(d.target.value);
+      	});      
     }
 
     source.addEventListener('event', function(e) {
