@@ -14,7 +14,8 @@ $ git clone http://github.com/nobeh/visactor.git
 $ cd visactor
 visactor$ ./run-demo.sh 
 ```
-then open your browser to `http://localhost:8080/index.html`
+then open your browser to `http://localhost:8080/index.html`.
+You should be able to see a changing diagram such as [this one][5].
 
 **Note** your browser must support [Server-sent Events][2]
 
@@ -74,3 +75,5 @@ limitations under the License.
 [2]: http://en.wikipedia.org/wiki/Server-sent_events
 [3]: http://www.html5rocks.com/en/tutorials/eventsource/basics/
 [4]: http://www.apache.org/licenses/LICENSE-2.0.html
+[5]: https://raw.githubusercontent.com/nobeh/visactor/master/visactor.gif
+
