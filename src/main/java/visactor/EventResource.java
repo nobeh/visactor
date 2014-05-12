@@ -71,7 +71,7 @@ public class EventResource {
 			broadcast(lastEventId.getData().longValue());
 		});
 		this.reactors.on(Selectors.object("in"), (reactor.event.Event<Event> e) -> {
-			store.add(e.getData());
+			store.use(e.getData());
 			broadcast(this.lastEventId.longValue());
 		});
 

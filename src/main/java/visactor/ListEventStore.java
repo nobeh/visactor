@@ -50,7 +50,7 @@ public class ListEventStore implements EventStore {
 
 	/** {@inheritDoc} */
 	@Override
-	public void add(Event event) {
+	public void use(Event event) {
 		try {
 			events.add(event);
 			logger.info("Added event: {}", event);
